@@ -30,6 +30,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build \
     -ldflags="-w -s" \
     -o /go/bin/myapp ./cmd
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build \
+    -ldflags="-w -s" \
+    -o /go/bin/migrate ./internal/infrastructure/db/migrate
 
 # ==========================================
 # STAGE 2: Final lightweight runtime
@@ -44,6 +48,11 @@ COPY --from=builder /etc/group /etc/group
 
 # Copy our static binary from the builder stage
 COPY --from=builder /go/bin/myapp /go/bin/myapp
+# Copy our migrations file from the builder stage
+COPY --from=builder /go/bin/migrate /go/bin/migration/migrate
+# Copy migrations sql file from the builder stage
+COPY --from=builder /app/internal/infrastructure/db/migrate/migrations /go/bin/migration/migrations
+
 
 # Use the non-root user we created in the builder stage
 USER appuser:appuser

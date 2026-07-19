@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/application"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/infrastructure/configs"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/infrastructure/db"
@@ -24,7 +25,7 @@ type Api struct {
 	Config ApiConfig
 }
 
-func (a *Api) Mount() http.Handler {
+func (a *Api) Mount(pool *pgxpool.Pool) http.Handler {
 	r := chi.NewRouter()
 
 	// Register the middleware
@@ -36,7 +37,7 @@ func (a *Api) Mount() http.Handler {
 	})
 
 	// Initialize the movie repository, usecase and handler
-	movieRepository := db.NewMovieRepository()
+	movieRepository := db.NewMovieRepository(pool)
 	createMovieUseCase := application.NewCreateMovieUsecase(movieRepository)
 	getMovieUseCase := application.NewGetMovieUsecase(movieRepository)
 	getMoviesUseCase := application.NewGetMoviesUsecase(movieRepository)

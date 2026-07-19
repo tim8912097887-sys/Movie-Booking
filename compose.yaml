@@ -1,0 +1,42 @@
+services:
+  movie-service-db:
+    image: postgres:16-alpine
+    container_name: movie-service-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: movie_booking
+    volumes:
+      - movie-service-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d movie_booking"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  movie-service-migrate:
+    build: ./services/movie
+    env_file:
+      - ./services/movie/.env
+    depends_on:
+      movie-service-db:
+        condition: service_healthy
+    restart: on-failure
+    entrypoint: ["/go/bin/migration/migrate"]
+  movie-service:
+    build: ./services/movie
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./services/movie/.env
+    depends_on:
+      movie-service-db:
+        condition: service_healthy
+      movie-service-migrate:
+        condition: service_completed_successfully
+    restart: always
+
+volumes:
+  movie-service-db-data:

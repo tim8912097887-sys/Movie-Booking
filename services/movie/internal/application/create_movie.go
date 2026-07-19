@@ -22,25 +22,25 @@ func (u *CreateMovieUsecase) Execute(ctx context.Context, command CreateMovieCom
 		return CreateMovieResult{}, err
 	}
 
-	err = u.repository.Create(ctx, movie)
+	createdMovie, err := u.repository.Create(ctx, movie)
 	if err != nil {
 		return CreateMovieResult{}, err
 	}
 
 	// Convert genres to string slice
 	var genresStr []string
-	for _, genre := range movie.Genres() {
+	for _, genre := range createdMovie.Genres() {
 		genresStr = append(genresStr, genre.String())
 	}
 
 	return CreateMovieResult{
-		ID:              movie.ID(),
-		Title:           movie.Title(),
-		Description:     movie.Description(),
+		ID:              createdMovie.ID(),
+		Title:           createdMovie.Title(),
+		Description:     createdMovie.Description(),
 		Genres:          genresStr,
-		DurationMinutes: movie.Duration().Minutes(),
-		Rating:          movie.Rating().String(),
-		ReleaseDate:     movie.ReleaseDate(),
-		DueDate:         movie.DueDate(),
+		DurationMinutes: createdMovie.Duration().Minutes(),
+		Rating:          createdMovie.Rating().String(),
+		ReleaseDate:     createdMovie.ReleaseDate(),
+		DueDate:         createdMovie.DueDate(),
 	}, nil
 }
