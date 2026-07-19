@@ -1,0 +1,51 @@
+name: Movie_Service CI
+
+on:
+  push:
+    branches: ["main", "feat/**", "fix/**"]
+    paths: ["services/movie/**", ".github/workflows/movie-service-ci.yaml"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./services/movie
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: moviedb_test
+        ports:
+          - 5432:5432
+        # Health check to ensure Postgres is ready before running tests
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.4"
+      - name: Build
+        run: go build -v ./...
+      - name: Test
+        run: go test -v ./...
+        env:
+          MOVIE_SERVICE_DB_URL: postgres://testuser:testpassword@localhost:5432/moviedb_test?sslmode=disable
+          MOVIE_SERVICE_ADDR: :8080
