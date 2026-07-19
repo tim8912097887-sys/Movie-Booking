@@ -26,3 +26,7 @@ func ParseRating(s string) (Rating, error) {
 	}
 	return rating, nil
 }
+
+func (r Rating) String() string {
+	return string(r)
+}

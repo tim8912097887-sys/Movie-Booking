@@ -9,7 +9,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/application"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/infrastructure/configs"
+	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/infrastructure/db"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/shared/shutdown"
 )
 
@@ -31,6 +33,26 @@ func (a *Api) Mount() http.Handler {
 	r.Get("/health",func (w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
+	})
+
+	// Initialize the movie repository, usecase and handler
+	movieRepository := db.NewMovieRepository()
+	createMovieUseCase := application.NewCreateMovieUsecase(movieRepository)
+	getMovieUseCase := application.NewGetMovieUsecase(movieRepository)
+	getMoviesUseCase := application.NewGetMoviesUsecase(movieRepository)
+	updateMovieUseCase := application.NewUpdateMovieUsecase(movieRepository)
+	deleteMovieUseCase := application.NewDeleteMovieUsecase(movieRepository)
+	handlerConfig := HandlerConfig{
+		Logger:              a.Config.Logger,
+		CreateMovieUseCase:  createMovieUseCase,
+		GetMovieUseCase:     getMovieUseCase,
+		GetMoviesUseCase:    getMoviesUseCase,
+		UpdateMovieUseCase:  updateMovieUseCase,
+		DeleteMovieUseCase:  deleteMovieUseCase,	
+	}
+	handler := NewHandler(handlerConfig)
+	r.Route("/api/v1/movies", func(r chi.Router) {
+		handler.RegisterRoutes(r)	
 	})
 	return r
 }

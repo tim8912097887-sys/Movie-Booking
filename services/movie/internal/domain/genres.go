@@ -34,3 +34,7 @@ func ParseGenre(g string) (Genre, error) {
 	}
 	return genre, nil
 }
+
+func (g Genre) String() string {
+	return string(g)
+}
