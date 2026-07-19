@@ -31,7 +31,7 @@ func InitConfigs() Configs {
 			Addr: getEnv(ENV_PREFIX+"ADDR", ":8080"),
 		},
 		Db: DatabaseConfig{
-			Url: getEnv(ENV_PREFIX+"DB_URL", "postgres://postgres:postgres@localhost:5432/movie_booking?sslmode=disable"),
+			Url: getEnv(ENV_PREFIX+"DB_URL", "postgres://postgres:password@localhost:5432/movie_booking?sslmode=disable"),
 		},
 	}
 }

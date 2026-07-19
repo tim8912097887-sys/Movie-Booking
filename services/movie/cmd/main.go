@@ -10,7 +10,7 @@ import (
 
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/infrastructure/configs"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/infrastructure/db"
-	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/interface/http"
+	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/interface/api"
 	"github.com/tim8912097887-sys/movie_booking/services/movie/internal/shared/shutdown"
 )
 
@@ -44,6 +44,6 @@ func main() {
 		return
 	}
 	// Initialize the API
-	api := http.Api{Config: http.ApiConfig{Logger: logger, EnvConfigs: envConfigs}}
+	api := api.Api{Config: api.ApiConfig{Logger: logger, EnvConfigs: envConfigs}}
 	api.Run(ctx, api.Mount(pool), 8*time.Second,shutdownManager)
 }
