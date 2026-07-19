@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    env:
+      MOVIE_SERVICE_DB_URL: postgres://testuser:testpassword@localhost:5432/moviedb_test?sslmode=disable
+      MOVIE_SERVICE_ADDR: :8080
     defaults:
       run:
         working-directory: ./services/movie
@@ -48,6 +51,3 @@ jobs:
         run: go run internal/infrastructure/db/migrate/main.go
       - name: Test
         run: go test -v ./...
-        env:
-          MOVIE_SERVICE_DB_URL: postgres://testuser:testpassword@localhost:5432/moviedb_test?sslmode=disable
-          MOVIE_SERVICE_ADDR: :8080
